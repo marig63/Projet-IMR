@@ -1,0 +1,65 @@
+//Requetes SQL de création de BD
+
+
+
+CREATE TABLE Groupe(
+Gr_ID int NOT NULL,
+Gr_Actif int, 
+PRIMARY KEY (Gr_ID)
+)
+
+CREATE TABLE Bracelet(
+Br_ID int NOT NULL,
+Br_Nom VARCHAR(20), 
+BR_Zone int, 
+BR_Groupe int,
+Br_Actif int,
+PRIMARY KEY (Br_ID), 
+FOREIGN KEY (BR_Groupe) REFERENCES Groupe(Gr_ID)
+)
+
+
+CREATE TABLE Accompagnant(
+Acc_ID int NOT NULL,
+Acc_Nom VARCHAR(30),
+Acc_Prenom VARCHAR(20),
+Acc_Groupe int,
+PRIMARY KEY (Acc_ID),
+FOREIGN KEY (Acc_Groupe) REFERENCES Groupe(Gr_ID)
+)
+
+
+CREATE TABLE Responsable(
+Resp_ID int NOT NULL,
+Resp_Groupe int,
+PRIMARY KEY (Resp_ID, Resp_Groupe),
+FOREIGN KEY (Resp_Groupe) REFERENCES Groupe(Gr_ID),
+FOREIGN KEY (Resp_ID) REFERENCES Accompagnant(Acc_ID)
+)
+
+Requete de MAJ de la valeur Gr_actif / Br_actif / Br_zone
+//"valeur" 
+
+UPDATE Groupe
+SET Gr_Actif = 'valeur'
+WHERE Gr_ID = 'recupID'
+
+//MAJ de zone
+UPDATE Bracelet
+SET BR_Zone = 'zone'
+WHERE Br_ID = 'recupID'
+
+//MAJ lors d'un nouveau bracelet
+UPDATE Bracelet
+SET Br_Actif = 1
+SET Br_Nom = 'valeur'
+WHERE Br_ID = 'recupID'
+
+//Remise à zero
+UPDATE Bracelet
+SET Br_Actif = 0
+SET Br_Nom = ''
+WHERE Br_ID = 'recupID'
+
+
+DELETE FROM 

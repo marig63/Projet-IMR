@@ -24,6 +24,8 @@
 //print_r($_SERVER);
 //echo '</pre>';
 
+//echo rand(-9, 9);
+
 function getExempleJson(){
 	$output = '[ 	{ 
 			"id" : "1",
@@ -61,24 +63,24 @@ function update($macAdr){
 			"id" : "1",
 			"name" : "'.$macAdr.'",
 			"admin" : "false",
-			"lat" : "47.642728",
-			"lon" : "6.866425",
+			"lat" : "'.(47.642728+(rand(-9, 9)/100000)).'",
+			"lon" : "'.(6.866425+(rand(-9, 9)/100000)).'",
 			"zone" : "hein ?"
 		},
 		{ 
 			"id" : "2",
 			"name" : "'.$macAdr.'",
 			"admin" : "false",
-			"lat" : "47.642660",
-			"lon" : "6.862621",
+			"lat" : "'.(47.642660+(rand(-9, 9)/100000)).'",
+			"lon" : "'.(6.862621+(rand(-9, 9)/100000)).'",
 			"zone" : "hein ?"
 		},
 		{ 
 			"id" : "3",
 			"name" : "'.$macAdr.'",
 			"admin" : "true",
-			"lat" : "47.642330",
-			"lon" : "6.859815",
+			"lat" : "'.(47.642330+(rand(-9, 9)/100000)).'",
+			"lon" : "'.(6.859815+(rand(-9, 9)/100000)).'",
 			"zone" : "hein ?"
 		}
 	]';

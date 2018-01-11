@@ -3,6 +3,9 @@
 	$path = "";
 	$param1 = "";
 	$param2 = "";
+	$param3 = "";
+	$param4 = "null";
+	$param5 = "null";
 	//$adresse = $_SERVER['PHP_SHELF'];
 	$i = 0;
 	foreach($_GET as $cle => $valeur){
@@ -15,6 +18,15 @@
 		}
 		if($i == 2){
 			$param2 = $valeur;
+		}
+		if($i == 3){
+			$param3 = $valeur;
+		}
+		if($i == 4){
+			$param4 = $valeur;
+		}
+		if($i == 5){
+			$param5 = $valeur;
 		}
 		$i++;
 	}
@@ -30,26 +42,26 @@ function getExempleJson(){
 	$output = '[ 	{ 
 			"id" : "1",
 			"name" : "Billy1",
-			"admin" : "false",
+			"role" : "ble",
 			"lat" : "47.642728",
 			"lon" : "6.866425",
-			"zone" : "hein ?"
+			"ok" : "true"
 		},
 		{ 
 			"id" : "2",
 			"name" : "Billy2",
-			"admin" : "false",
+			"role" : "ble",
 			"lat" : "47.642660",
 			"lon" : "6.862621",
-			"zone" : "hein ?"
+			"ok" : "true"
 		},
 		{ 
 			"id" : "3",
 			"name" : "Admin",
-			"admin" : "true",
+			"role" : "admin",
 			"lat" : "47.642330",
 			"lon" : "6.859815",
-			"zone" : "hein ?"
+			"ok" : "true"
 		}
 	]';
 	return $output;
@@ -58,30 +70,38 @@ function getExempleJson(){
 //$path = $_SERVER['PATH_INFO'];
 //$path = substr($path,1);
 
-function update($macAdr){
+function update($macAdr,$param2,$param3,$param4,$param5){
 	$output = '[ 	{ 
 			"id" : "1",
-			"name" : "'.$macAdr.'",
-			"admin" : "false",
-			"lat" : "'.(47.642728+(rand(-9, 9)/100000)).'",
-			"lon" : "'.(6.866425+(rand(-9, 9)/100000)).'",
-			"zone" : "hein ?"
+			"name" : "Bob",
+			"role" : "ble",
+			"lat" : "'.(47.642685+(rand(-9, 9)/100000)).'",
+			"lon" : "'.(6.862641+(rand(-9, 9)/100000)).'",
+			"ok" : "true"
 		},
 		{ 
 			"id" : "2",
-			"name" : "'.$macAdr.'",
-			"admin" : "false",
-			"lat" : "'.(47.642660+(rand(-9, 9)/100000)).'",
+			"name" : "Billy",
+			"role" : "ble",
+			"lat" : "'.(47.6426060+(rand(-9, 9)/100000)).'",
 			"lon" : "'.(6.862621+(rand(-9, 9)/100000)).'",
-			"zone" : "hein ?"
+			"ok" : "true"
 		},
 		{ 
 			"id" : "3",
-			"name" : "'.$macAdr.'",
-			"admin" : "true",
-			"lat" : "'.(47.642330+(rand(-9, 9)/100000)).'",
-			"lon" : "'.(6.859815+(rand(-9, 9)/100000)).'",
-			"zone" : "hein ?"
+			"name" : "Michel",
+			"role" : "admin",
+			"lat" : "'.(47.642645+(rand(-9, 9)/100000)).'",
+			"lon" : "'.(6.862605+(rand(-9, 9)/100000)).'",
+			"ok" : "true"
+		},
+		{ 
+			"id" : "4",
+			"name" : "'.$param5.'",
+			"role" : "ping",
+			"lat" : "'.(47.642645).'",
+			"lon" : "'.(6.862605).'",
+			"ok" : "true"
 		}
 	]';
 	return $output;
@@ -98,10 +118,10 @@ function newAcc($name,$macAdr){
 	$output = '[ 	{ 
 			"id" : "12",
 			"name" : "'.$name.'",
-			"admin" : "true",
+			"role" : "'.$macAdr.'",
 			"lat" : "47.642728",
 			"lon" : "6.866425",
-			"zone" : "hein ?"
+			"ok" : "false"
 		}
 	]';
 	
@@ -117,10 +137,10 @@ function addMemberToGroup($macAdrAdmin,$macAdrNewMember){
 	$output = '[ 	{ 
 			"id" : "0",
 			"name" : "'.$macAdrNewMember.'",
-			"admin" : "'.$macAdrAdmin.'",
+			"role" : "result",
 			"lat" : "47.642728",
 			"lon" : "6.866425",
-			"zone" : "hein ?"
+			"ok" : "true"
 		}
 	]';
 	
@@ -137,15 +157,29 @@ function newGroup($nameGroup,$macAdrAdmin){
 	$output = '[ 	{ 
 			"id" : "0",
 			"name" : "'.$nameGroup.'",
-			"admin" : "'.$nameGroup.'",
+			"role" : "result",
 			"lat" : "47.642728",
 			"lon" : "6.866425",
-			"zone" : "hein ?"
+			"ok" : "true"
 		}
 	]';
 	
 	return $output;
 	
+}
+
+function requestSignal($macAdr,$hardwareAdr,$signal){ // inutile dans le projet , a supprimer à la fin
+	$output = '[ 	{ 
+			"id" : "12",
+			"name" : "'.$hardwareAdr.'",
+			"role" : "'.$signal.'",
+			"lat" : "47.642728",
+			"lon" : "6.866425",
+			"ok" : "true"
+		}
+	]';
+	
+	return $output;
 }
 
 
@@ -169,12 +203,36 @@ if( strcmp($path,"createGroup") == 0 ){
 
 if( strcmp($path,"requestUpdate") == 0 ){
 	//echo update(macAdr);
-	echo update($param1);
+	echo update($param1,$param2,$param3,$param4,$param5);
 }
 
 
 
 
+
+
+if( strcmp($path,"promote") == 0 ){
+	//echo newGroup($nameGroup?,$macAdrAdmin);
+	echo ($param1." -> ".$param2);
+}
+
+if( strcmp($path,"disperse") == 0 ){
+	//echo newGroup($nameGroup?,$macAdrAdmin);
+	echo ($param1);
+}
+
+if( strcmp($path,"leaveGroup") == 0 ){
+	//echo newGroup($nameGroup?,$macAdrAdmin);
+	echo ($param1);
+}
+
+if( strcmp($path,"requestSignal") == 0 ){
+	//echo newGroup($nameGroup?,$macAdrAdmin);
+	//echo ($param1. " -> ".$param2 . " ->> ". $param3);
+	
+	echo requestSignal($param1,$param2,$param3);
+
+}
 
 
 ?>

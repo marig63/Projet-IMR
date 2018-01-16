@@ -82,7 +82,7 @@ function update($macAdr,$param2,$param3,$param4,$param5){
 		{ 
 			"id" : "2",
 			"name" : "Billy",
-			"role" : "ble",
+			"role" : "member",
 			"lat" : "'.(47.6426060+(rand(-9, 9)/100000)).'",
 			"lon" : "'.(6.862621+(rand(-9, 9)/100000)).'",
 			"ok" : "true"
@@ -121,7 +121,7 @@ function newAcc($name,$macAdr){
 			"role" : "'.$macAdr.'",
 			"lat" : "47.642728",
 			"lon" : "6.866425",
-			"ok" : "false"
+			"ok" : "true"
 		}
 	]';
 	
@@ -233,6 +233,7 @@ if( strcmp($path,"requestSignal") == 0 ){
 	echo requestSignal($param1,$param2,$param3);
 
 }
+
 
 
 ?>

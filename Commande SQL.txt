@@ -1,41 +1,56 @@
 //Requetes SQL de création de BD
 
-
+CREATE TABLE Antenne(
+Ant_ID VARCHAR(20) NOT NULL, 
+Ant_Lat float, 
+Ant_Lon float, 
+Ant_Radius int,
+PRIMARY KEY (Ant_ID)
+)
 
 CREATE TABLE Groupe(
-Gr_ID int NOT NULL,
+Gr_ID int NOT NULL AUTO_INCREMENT,
 Gr_Actif int, 
+Gr_Name VARCHAR(30),
 PRIMARY KEY (Gr_ID)
 )
 
-CREATE TABLE Bracelet(
-Br_ID int NOT NULL,
-Br_Nom VARCHAR(20), 
-BR_Zone int, 
-BR_Groupe int,
-Br_Actif int,
-PRIMARY KEY (Br_ID), 
-FOREIGN KEY (BR_Groupe) REFERENCES Groupe(Gr_ID)
+CREATE TABLE BLE(
+BLE_ID VARCHAR(20) NOT NULL,
+BLE_Nom VARCHAR(20), 
+BLE_Zone int, 
+BLE_Groupe int,
+BLE_Actif int,
+BLE_Lat int,
+BLE_Lon int,
+BLE_Radius int,
+PRIMARY KEY (BLE_ID), 
+FOREIGN KEY (BLE_Groupe) REFERENCES Groupe(Gr_ID)
 )
 
 
 CREATE TABLE Accompagnant(
-Acc_ID int NOT NULL,
+Acc_ID VARCHAR(20) NOT NULL,
 Acc_Nom VARCHAR(30),
 Acc_Prenom VARCHAR(20),
 Acc_Groupe int,
+Acc_Lat int,
+Acc_Lon int, 
+Acc_Radius int,
 PRIMARY KEY (Acc_ID),
 FOREIGN KEY (Acc_Groupe) REFERENCES Groupe(Gr_ID)
 )
 
 
 CREATE TABLE Responsable(
-Resp_ID int NOT NULL,
+Resp_ID VARCHAR(20) NOT NULL,
 Resp_Groupe int,
 PRIMARY KEY (Resp_ID, Resp_Groupe),
 FOREIGN KEY (Resp_Groupe) REFERENCES Groupe(Gr_ID),
 FOREIGN KEY (Resp_ID) REFERENCES Accompagnant(Acc_ID)
 )
+
+
 
 Requete de MAJ de la valeur Gr_actif / Br_actif / Br_zone
 //"valeur" 

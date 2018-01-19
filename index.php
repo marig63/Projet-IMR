@@ -56,8 +56,8 @@
 	
 	//http://localhost/projetm2/index.php?action=requestUpdate&p1=1234&p2=25.2&p3=10.2&p4=1112&p5=2223&p6=-20&p7=-60
 	
-  //  $bdd = new PDO('mysql:host='"http://88.182.69.156/phpmyadmin/"';dbname=projetm2;charset=utf8', 'root', 'bluetooth');
-$bdd = new PDO('mysql:host=localhost;dbname=projetm2', 'root', '');
+    //$bdd = new PDO('mysql:host=http://88.182.69.156/phpmyadmin/;dbname=projetm2;charset=utf8', 'root', 'bluetooth');
+$bdd = new PDO('mysql:host=localhost;dbname=projetm2', 'root', 'bluetooth');
 
 $listeSignaux = array();
 
@@ -400,6 +400,7 @@ function newAcc($bdd, $name,$macAdr){
 			"ok" : "false"
 		}
 	]';
+		
 		return $output;
 	}
 	//check if already exist
@@ -415,13 +416,42 @@ function newAcc($bdd, $name,$macAdr){
 			"lat" : "47.642728",
 			"lon" : "6.866425",
 			"rad" : 10,
-			"ok" : "MajNom"
+			"ok" : "true"
 		}
 	]';
 		//mettre à jour son nom
 		//OK
 		$bdd->query('UPDATE Accompagnant SET Acc_nom = "'.$name. '" WHERE ACC_ID = "'.$macAdr.'"');
 		
+		$infos = $bdd->query('SELECT * FROM Accompagnant WHERE ACC_ID = "'.$macAdr.'"');
+		$inf = $infos->fetch();
+		if($inf['Acc_Groupe'] == null){
+			$output = '[ 	{ 
+			"id" : "12",
+			"name" : "'.$name.'",
+			"role" : "'.$macAdr.'",
+			"lat" : "47.642728",
+			"lon" : "6.866425",
+			"rad" : 10,
+			"ok" : "false"
+		}
+	]';
+		}
+		else{
+			$output = '[ 	{ 
+			"id" : "12",
+			"name" : "'.$name.'",
+			"role" : "'.$macAdr.'",
+			"lat" : "47.642728",
+			"lon" : "6.866425",
+			"rad" : 10,
+			"ok" : "true"
+		}
+	]';
+			
+		}
+
+	
 	}
 	
 	
@@ -430,7 +460,7 @@ function newAcc($bdd, $name,$macAdr){
 	
 	//voir Acc_groupe
 	//ajoute un accompagnant
-		$bdd->query('INSERT INTO Accompagnant (ACC_id, Acc_nom) VALUES ("'.$macAdr.'", "'.$name.'")');	
+		$bdd->query('INSERT INTO Accompagnant (ACC_id, Acc_nom, Acc_Lat, Acc_Lon,Acc_Radius) VALUES ("'.$macAdr.'", "'.$name.'", 0.0,0.0,0)');	
 		$output = '[ 	{ 
 				"id" : "12",
 				"name" : "'.$name.'",
@@ -438,7 +468,7 @@ function newAcc($bdd, $name,$macAdr){
 				"lat" : "47.642728",
 				"lon" : "6.866425",
 				"rad" : 10,
-				"ok" : "NewAcc"
+				"ok" : "false"
 			}
 		]';	
 		
@@ -447,12 +477,12 @@ function newAcc($bdd, $name,$macAdr){
 	
 }
 
-function addMemberToGroup($bdd, $macAdrAdmin,$macAdrNewMember){
+function addMemberToGroup($bdd, $macAdrAdmin,$macAdrNewMember,$nameNewMember){
 	//Si existe déja mettre à jour dans le nouveau groupe
 	if($macAdrAdmin == null or $macAdrNewMember == null){
 		$output = '[ 	{ 
 			"id" : "0",
-			"name" : "'.$macAdrNewMember.'",
+			"name" : "'.$macAdrAdmin.'",
 			"role" : "result",
 			"lat" : "47.642728",
 			"lon" : "6.866425",
@@ -460,33 +490,53 @@ function addMemberToGroup($bdd, $macAdrAdmin,$macAdrNewMember){
 			"ok" : "false"
 		}
 	]';
-		
+		//echo "donnees fausses";
 		return $output;
 	}
-	
 
-	//recup du groupe de l'admin
-	$reponseSql = $bdd->query('SELECT * FROM Responsable WHERE Resp_id ="' .$macAdrAdmin.'"');
-	$donnees = $reponseSql->fetch();
-	if($donnees ==null){
+
+	$testAcc = $bdd->query('SELECT * FROM Accompagnant WHERE Acc_ID = "'.$macAdrAdmin.'"');
+	$testAccompagnant = $testAcc->fetch();
+	//Ne possede pas de groupe ou pas accompagnant
+	if($testAccompagnant['Acc_Groupe'] == null or $testAccompagnant['Acc_ID'] == null){
+		//echo "Ajouteur : pas de group ou pas acc";
 		$output = '[ 	{ 
 			"id" : "0",
-			"name" : "'.$macAdrNewMember.'",
+			"name" : "'.$macAdrAdmin.'",
 			"role" : "result",
 			"lat" : "47.642728",
 			"lon" : "6.866425",
 			"rad" : 10,
-			"ok" : "pas un resp"
+			"ok" : "false"
 		}
-	]';
-	
+	]';		
 		
+	
 	}
 	else{
-	$RecupGrp = $donnees['Resp_Groupe'];
-	$bdd->query('INSERT INTO Accompagnant (ACC_ID, Acc_groupe) VALUES("'.$macAdrNewMember.'", '.$RecupGrp.')');
-	
-		$output = '[ 	{ 
+		$AccAjoutant = $bdd->query('SELECT * FROM Accompagnant WHERE Acc_ID ="'.$macAdrAdmin.'"');
+		$donneesAjoutant = $AccAjoutant->fetch();
+		$RecupGrp = $donneesAjoutant['Acc_Groupe'];
+		//echo "groupe : ".$RecupGrp;
+		$testAcc = $bdd->query('SELECT * FROM Accompagnant WHERE Acc_ID = "'.$macAdrNewMember.'"');
+		$testAccompagnant = $testAcc->fetch();
+		
+		//Test si le nouveau est un acc
+		if($testAccompagnant['Acc_ID']== null){
+			
+			//Le nouveau est un BLE
+			//echo "Ajout BLE";
+			$bdd->query('INSERT INTO BLE (BLE_ID, BLE_Nom, BLE_Groupe) VALUES("'.$macAdrNewMember.'", "'.$nameNewMember.'", '.$RecupGrp.')');
+		}
+		else{
+			//On met à jour le groupe du Acc
+			//echo "MAJ ACC";
+			$bdd->query('UPDATE Accompagnant SET Acc_Groupe = '.$RecupGrp.' WHERE Acc_ID = "'.$macAdrNewMember.'"');
+		}
+		
+		
+		//$bdd->query('INSERT INTO BLE (BLE_ID, Acc_groupe) VALUES("'.$macAdrNewMember.'", '.$RecupGrp.')');
+			$output = '[ 	{ 
 			"id" : "0",
 			"name" : "'.$macAdrNewMember.'",
 			"role" : "result",
@@ -498,6 +548,7 @@ function addMemberToGroup($bdd, $macAdrAdmin,$macAdrNewMember){
 	]';
 	
 	}
+
 	
 	return $output;
 	
@@ -526,7 +577,7 @@ function newGroup($bdd,$nameGroup,$macAdrAdmin){
 	
 	//Vérifier si requete insert nécessite syntaxe ''
 	$bdd->query('INSERT INTO Responsable (Resp_ID, Resp_Groupe) VALUES ("'.$macAdrAdmin.'" , '.$ID_grp.')');
-	
+	$bdd->query('UPDATE Accompagnant SET Acc_Groupe = '.$ID_grp.' WHERE ACC_ID = "'.$macAdrAdmin.'"');
 	
 	
 	$output = '[ 	{ 
@@ -718,7 +769,7 @@ if( strcmp($path,"init") == 0 ){
 
 if( strcmp($path,"addMember") == 0 ){
 	
-	echo addMemberToGroup($bdd, $param1,$param2);
+	echo addMemberToGroup($bdd, $param1,$param2,$param3);
 }
 
 if( strcmp($path,"createGroup") == 0 ){

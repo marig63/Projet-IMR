@@ -78,11 +78,18 @@ $listeSignaux = array();
 		if($i == 3){//long
 			$param3 = $valeur;
 		}
+		if($i == 4){
+			$param4 = $valeur;
+		}
 		
 		if($i > 3){
 			array_push($listeSignaux, $valeur);
+			//echo ($valeur);
+		//	echo (" ");
 		}
 		$i++;
+		//echo ($i);
+		//echo (" ");
 	}
 
 //echo $_SERVER['PATH_INFO'];
@@ -93,6 +100,46 @@ $listeSignaux = array();
 //echo rand(-9, 9);
 
 //$reponse = $bdd->query('Tapez votre requête SQL ici');
+
+function sendPing($bdd, $macAdr, $lat, $lon, $heure){
+	
+	$donnees = $bdd->query('SELECT Acc_groupe FROM Accompagnant WHERE ACC_ID ="'.$macAdr.'"');
+	$idGroup = $donnees->fetch();
+	
+	if($idGroup == null){
+		$output = '[ 	{ 
+			"id" : "12",
+			"name" : "'.$macAdr.'",
+			"role" : "ping",
+			"lat" : "'.$lat.'",
+			"lon" : "'.$lon.'",
+			"rad" : 10,
+			"ok" : "false"
+		
+		}
+	]';	
+		
+	}else{
+		//var_dump($idGroup);
+		$groupe = $idGroup['Acc_groupe'];
+		
+		$bdd->query('INSERT INTO Ping (Ping_Lat, Ping_Lon, Ping_Groupe, Ping_Heure) VALUES('.$lat.', '.$lon.', '.$groupe.', "'.$heure.'")');
+		$output = '[ 	{ 
+			"id" : "0",
+			"name" : "nomPing",
+			"role" : "ping",
+			"lat" : "'.$lat.'",
+			"lon" : "'.$lon.'",
+			"rad" : 10,
+			"ok" : "true"
+		
+		}
+	]';	
+		
+	}
+	return $output;
+	
+}
 
 function getExempleJson(){
 	$output = '[ 	{ 
@@ -132,23 +179,37 @@ function getExempleJson(){
 
 function update($bdd,$macAdr,$lat,$lon,$listSignal){
 	//Une liste remplace param 4 et 5 (1ere moitié = @mac, 2eme moitié = signaux)
+	
+	$bdd->query('UPDATE	Accompagnant SET Acc_Lat = '.$lat. ', Acc_Lon = '.$lon.' WHERE ACC_ID = "'.$macAdr.'"');
+	
 	$nb = count($listSignal);
 	$imax = $nb/2;
+	
+	//echo ($nb);
+	//echo ("  :  ");
+	//echo ($imax);
+	//echo ("  :  ");
 	
 	for($i=0; $i<$imax; $i++){
 		
 		$newMacAdr = $listSignal[$i];
 		$forceSignal = $listSignal[$i+$imax];
+		
 		//Bloc déterminant les différents seuils de radius selon la force du signal
-		if($forceSignal <= -120){
+		if($forceSignal <= -100){
 			$radius = 30;
 		}
-		elseif($forceSignal >-120 && $forceSignal <=-70 ){
+		elseif($forceSignal >-100 && $forceSignal <=-80 ){
 			$radius = 20;
 		}
-		else{
+		elseif($forceSignal>-80 && $$forceSignal <=-60 ){
 			$radius = 10;
 		}
+		else{
+			$radius = 5;
+		}
+		
+		
 	
 		 updateIndividuel($bdd, $newMacAdr, $lat, $lon, $radius);
 		
@@ -190,6 +251,25 @@ function update($bdd,$macAdr,$lat,$lon,$listSignal){
 		$output = $output.$fiche;
 		
 	}
+	
+	$res = $bdd->query('SELECT * FROM PING WHERE Ping_Groupe = '.$idG['Acc_Groupe']);
+	while($resultat = $res->fetch()){
+		$fiche = ' { 
+					"id" : "'.$resultat['Ping_ID'].'",
+					"name" : "'.$resultat['Ping_Heure'].'",
+					"role" : "ping",
+					"lat" : "'.$resultat['Ping_Lat'].'",
+					"lon" : "'.$resultat['Ping_Lon'].'",
+					"rad" : "0",
+					"ok" : "true"
+					} , ';
+		
+		$output = $output.$fiche;
+		
+	}
+	
+	
+	
 	$output = substr($output, 0, -2);
 	$output = $output.']';
 	
@@ -197,7 +277,7 @@ function update($bdd,$macAdr,$lat,$lon,$listSignal){
 	return $output;
 }
 function updateIndividuel($bdd, $macAdr, $lat, $lon, $radius){
-	
+		//echo ($macAdr);
 	//Tester si il s'agit d'un accompagnant ou d'un ble
 	
 	$reponse = $bdd->query('SELECT * FROM Accompagnant WHERE ACC_ID = "'.$macAdr.'"');
@@ -207,7 +287,7 @@ function updateIndividuel($bdd, $macAdr, $lat, $lon, $radius){
 		//macAdr d'un BLE
 		$reponse = $bdd->query('SELECT * FROM ble WHERE BLE_ID = "'.$macAdr.'"');
 		$rep = $reponse->fetch();
-		if($rep == null){
+		if($reponse == null){
 			//Mauvaise adresse
 			$output = '[ 	{ 
 					"id" : "12",
@@ -224,8 +304,14 @@ function updateIndividuel($bdd, $macAdr, $lat, $lon, $radius){
 		}
 		else{
 		
+		//echo ("maj");
+		//echo ($lat);
+		//echo ($lon);
+		//echo ($macAdr);
+		//$bdd->query('UPDATE BLE SET BLE_Lat = '.$lat. ', BLE_Lon = '.$lon. ', BLE_radius = '.$radius. ' WHERE BLE_ID = "'.$macAdr.'"');
+		//$bdd->query('UPDATE BLE SET BLE_Lat = '.$lat.', BLE_Lon = '.$lon.', BLE_radius = '.$radius. ' WHERE BLE_ID = "'.$macAdr.'"');
+		$bdd->query('UPDATE	ble SET BLE_Lat = '.$lat. ', BLE_Lon = '.$lon.', BLE_Radius = '.$radius.' WHERE BLE_ID = "'.$macAdr.'"');
 		
-		$bdd->query('UPDATE BLE SET BLE_Lat = '.$lat. ', BLE_Lon = '.$lon. ', BLE_radius = '.$radius. ' WHERE BLE_ID = "'.$macAdr.'"');
 		$infos = $bdd->query('SELECT * FROM BLE WHERE BLE_ID = "'.$macAdr.'"');
 		$inf = $infos->fetch();
 		$output = '[ 	{ 
@@ -300,9 +386,25 @@ function updateIndividuel($bdd, $macAdr, $lat, $lon, $radius){
 	*/
 
 //Changer parametre BD -> zone latitude longitude radius	le radius est prédéfini pour les antennes
-function requestSignal($bdd, $macAdrAnt, $macAdr){
+function requestSignal($bdd, $macAdrAnt, $macAdr, $sig){
+	//echo ($sig);
 	//CHANGER PARAM DANS BD LAT LON EN FLOAT
 	$radius = 20;
+	
+	if($sig <= -100){
+			$radius = 30;
+	}
+	elseif($sig >-100 && $sig <=-80 ){
+		$radius = 20;
+	}
+	elseif($sig >-80 && $sig <=-60 ){
+		$radius = 10;
+	}
+	else{
+		$radius = 5;
+	}
+	
+	
 	if($macAdr == null or $macAdrAnt == null){
 		$output = '[ 	{ 
 			"id" : "12",
@@ -317,11 +419,11 @@ function requestSignal($bdd, $macAdrAnt, $macAdr){
 		return $output;
 	}
 	else{
-		$reponse = $bdd->query('SELECT * FROM Antenne WHERE Ant_ID = '.$macAdrAnt);
+		$reponse = $bdd->query('SELECT * FROM Antenne WHERE Ant_ID = "'.$macAdrAnt.'"');
 		$rep = $reponse->fetch();
 		$lat = $rep['Ant_Lat'];
 		$lon = $rep['Ant_Lon'];
-		$rad = $rep['Ant_Radius'];
+		$rad = $radius;
 		if($rep == null){
 			$output = '[ 	{ 
 				"id" : "12",
@@ -526,7 +628,7 @@ function addMemberToGroup($bdd, $macAdrAdmin,$macAdrNewMember,$nameNewMember){
 			
 			//Le nouveau est un BLE
 			//echo "Ajout BLE";
-			$bdd->query('INSERT INTO BLE (BLE_ID, BLE_Nom, BLE_Groupe) VALUES("'.$macAdrNewMember.'", "'.$nameNewMember.'", '.$RecupGrp.')');
+			$bdd->query('INSERT INTO BLE (BLE_ID, BLE_Nom, BLE_Groupe, BLE_Lat, BLE_Lon, BLE_Radius) VALUES("'.$macAdrNewMember.'", "'.$nameNewMember.'", '.$RecupGrp.', 0.0,0.0,10)');
 		}
 		else{
 			//On met à jour le groupe du Acc
@@ -800,7 +902,13 @@ if( strcmp($path,"leaveGroup") == 0 ){
 
 if( strcmp($path,"requestSignal") == 0 ){
 	
-	echo requestSignal($bdd, $param1, $param2);
+	echo requestSignal($bdd, $param1, $param2,$param3);
+
+}
+
+if( strcmp($path,"sendPing") == 0 ){
+	
+	echo sendPing($bdd, $param1, $param2, $param3, $param4);
 
 }
 

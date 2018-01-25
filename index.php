@@ -202,7 +202,7 @@ function update($bdd,$macAdr,$lat,$lon,$listSignal){
 		elseif($forceSignal >-100 && $forceSignal <=-80 ){
 			$radius = 20;
 		}
-		elseif($forceSignal>-80 && $$forceSignal <=-60 ){
+		elseif($forceSignal>-80 && $forceSignal <=-60 ){
 			$radius = 10;
 		}
 		else{
